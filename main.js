@@ -7,36 +7,35 @@
 // @match        https://www.warcraftlogs.com/*
 // @run-at       document-idle
 // ==/UserScript==
-
 const attributes = ['critSpell', 'hasteSpell', 'mastery', 'versatilityDamageDone'];
 const columnNames = ['Crit', 'Haste', 'Mastery', 'Versatility'];
-
 const regex = /\/reports\/([\S\s]+?)#fight=([0-9]+)/;
 
-// initialize attribute columns
-for (var i = 0; i < attributes.length; i++) {
-    $('<th class="sorting ui-state-default">' + columnNames[i] + '</th>').insertBefore('th.zmdi.zmdi-flag.sorting.ui-state-default');
-}
-for (var i = 0; i < attributes.length; i++) {
-    $('<td class="attr-' + attributes[i] + '"></td>').insertBefore('td.zmdi.zmdi-flag');
-}
-
-// extract fights from ranking page
 var PlayerList = new Array();
 
-$('td.unique-gear').parent().each(function() {
-    var player = new Object();
+function initialize() {
+    // initialize attribute columns
+    for (var i = 0; i < attributes.length; i++) {
+        $('<th class="sorting ui-state-default">' + columnNames[i] + '</th>').insertBefore('th.zmdi.zmdi-flag.sorting.ui-state-default');
+    }
+    for (var i = 0; i < attributes.length; i++) {
+        $('<td class="attr-' + attributes[i] + '"></td>').insertBefore('td.zmdi.zmdi-flag');
+    }
 
-    player.rowID = $(this).attr('id');
-    player.name = $(this).find('.players-table-name .main-table-player').text();
+    // extract fights from ranking page
+    $('td.unique-gear').parent().each(function() {
+        var player = new Object();
 
-    var href = $(this).find('.players-table-name .main-table-player').attr('href');
-    player.logID = href.match(regex)[1];
-    player.fightID = href.match(regex)[2];
+        player.rowID = $(this).attr('id');
+        player.name = $(this).find('.players-table-name .main-table-player').text();
 
-    PlayerList.push(player);
-});
+        var href = $(this).find('.players-table-name .main-table-player').attr('href');
+        player.logID = href.match(regex)[1];
+        player.fightID = href.match(regex)[2];
 
+        PlayerList.push(player);
+    });
+}
 
 function loadFights(index) {
     $.ajax({
@@ -102,4 +101,13 @@ function callback_fights(data, idx) {
     loadFights(idx);
 }
 
-loadFights(0);
+function delayLoad() {
+    if ($('.ranking-table tr:eq(5)').length === 0) {
+        setTimeout(delayLoad, 1000);
+    } else {
+        initialize();
+        loadFights(0);
+    }
+}
+
+delayLoad();
