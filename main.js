@@ -15,10 +15,10 @@ var PlayerList = new Array();
 
 function initialize() {
     // initialize attribute columns
-    for (var i = 0; i < attributes.length; i++) {
+    for (let i = 0; i < attributes.length; i++) {
         $('<th class="sorting ui-state-default">' + columnNames[i] + '</th>').insertBefore('th.zmdi.zmdi-flag.sorting.ui-state-default');
     }
-    for (var i = 0; i < attributes.length; i++) {
+    for (let i = 0; i < attributes.length; i++) {
         $('<td class="attr-' + attributes[i] + '"></td>').insertBefore('td.zmdi.zmdi-flag');
     }
 
@@ -101,13 +101,18 @@ function callback_fights(data, idx) {
     loadFights(idx);
 }
 
-function delayLoad() {
-    if ($('.ranking-table tr:eq(5)').length === 0) {
-        setTimeout(delayLoad, 1000);
+function loadAttributes() {
+    initialize();
+    loadFights(0);
+}
+
+function delayLoadAttributes() {
+    if ($('.ranking-table tr:eq(1)').length === 0) {
+        console.log('delay');
+        setTimeout(delayLoadAttributes, 1000);
     } else {
-        initialize();
-        loadFights(0);
+        loadAttributes();
     }
 }
 
-delayLoad();
+delayLoadAttributes();
