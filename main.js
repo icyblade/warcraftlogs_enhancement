@@ -4,7 +4,7 @@
 // @version      0.1
 // @description  Some Enhancement Scripts of Warcraft Logs
 // @author       swqsldz, kingofpowers, icyblade
-// @match        https://www.warcraftlogs.com/*
+// @match        https://*.warcraftlogs.com/*
 // @run-at       document-idle
 // ==/UserScript==
 const attributes = ['critSpell', 'hasteSpell', 'mastery', 'versatilityDamageDone'];
