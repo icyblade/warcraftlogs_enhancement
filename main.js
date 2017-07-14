@@ -30,6 +30,9 @@ function initialize() {
         player.name = $(this).find('.players-table-name .main-table-player').text();
 
         var href = $(this).find('.players-table-name .main-table-player').attr('href');
+        if(typeof(href)=="undefined"){
+        	continue;
+        }
         player.logID = href.match(regex)[1];
         player.fightID = href.match(regex)[2];
 
