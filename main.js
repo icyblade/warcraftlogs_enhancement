@@ -46,7 +46,7 @@ function initialize() {
 }
 
 function loadPlayerSummary(index){
-//	console.log('https://www.warcraftlogs.com/reports/summary/' + PlayerList[index].logID + '/' + PlayerList[index].fightID + '/' + PlayerList[index].timestamp + '/' + (PlayerList[index].timestamp + 3000) + '/' + PlayerList[index].sourceID + '/0/Any/0/-1.0.-1/0')
+	console.log('https://www.warcraftlogs.com/reports/summary/' + PlayerList[index].logID + '/' + PlayerList[index].fightID + '/' + PlayerList[index].timestamp + '/' + (PlayerList[index].timestamp + 3000) + '/' + PlayerList[index].sourceID + '/0/Any/0/-1.0.-1/0')
     $.ajax({
         type: 'GET',
         url: 'https://www.warcraftlogs.com/reports/summary/' + PlayerList[index].logID + '/' + PlayerList[index].fightID + '/' + PlayerList[index].timestamp + '/' + (PlayerList[index].timestamp + 3000) + '/' + PlayerList[index].sourceID + '/0/Any/0/-1.0.-1/0',
@@ -90,20 +90,21 @@ function callback_playersummary(data,index){
 				break;
 		}
 	}
-	var regex_trait=/<a target="_new" href="\/\/www.wowhead.com\/spell=[0-9]+\?rank=([0-9]+)"[^<]+<img[^>]+><span id="artifact\-ability\-([0-9]+)\-0" class="school\-1" style="">([^<]+)<\/span>/g;
+	//var regex_trait=/<a target="_new" href="\/\/www.wowhead.com\/spell=[0-9]+\?rank=([0-9]+)"[^<]+<img[^>]+><span id="artifact\-ability\-([0-9]+)\-0" class="school\-1" style="">([^<]+)<\/span>/g;
+	var regex_trait=/<a target="_new" href="\/\/www.wowhead.com\/spell=([0-9]+)\?rank=[0-9]"[^<]+<img src="([^"]+)"[^<]+<span[^<]+<\/span[^<]+<\/a[^<]+<td class="primary rank">([0-9]+)<\/td[^<]+<\/tr>/g;
 	//Concordance of the Legionfall
 	var relicnum=0;
 	while((trait=regex_trait.exec(data))!=null)
 	{
-		if(trait[1]>4 && trait[2]!=239042){ // spell 239042 Concordance of the Legionfall
-			while(trait[1]>4){
-				trait[1]--;
+		if(trait[3]>4 && trait[1]!=239042){ // spell 239042 Concordance of the Legionfall
+			while(trait[3]>4){
+				trait[3]--;
 				relicnum++;
-				summary['relic'+relicnum]=trait[3];
+				summary['relic'+relicnum]={'spellid':trait[1],'img':trait[2]};
 			}
 		}
-		if(trait[3]==239042){
-			summary['legionfall_level']=trait[1];
+		if(trait[1]==239042){
+			summary['legionfall_level']=trait[3];
 		}
 	}
 	var regex_item=/<td class="primary rank">([0-9]+)<\/td[^<]+<td nowrap class="num">(Trinket|Weapon)<td [^<]+<a target="_new" href="\/\/legion.wowhead.com\/item=([0-9]+)" rel="bonus=([0-9:]+);"/g;
