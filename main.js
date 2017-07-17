@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Warcraft Logs Enhancement
 // @namespace    https://github.com/icyblade/warcraftlogs_enhancement
-// @version      0.3
+// @version      0.4
 // @description  Some Enhancement Scripts of Warcraft Logs
 // @author       swqsldz, kingofpowers, icyblade
 // @match        https://*.warcraftlogs.com/*
@@ -15,6 +15,7 @@ const HOST = 'https://' + window.location.hostname;
 var PlayerList = new Array();
 
 function initialize() {
+    'use strict';
     // initialize attribute columns
     for (let i = 0; i < attributes.length; i++) {
         $('<th class="sorting ui-state-default">' + columnNames[i] + '</th>').insertBefore('th.zmdi.zmdi-flag.sorting.ui-state-default');
@@ -76,6 +77,7 @@ function callback_stats(data, rowID, logID, fightID, timestamp, sourceID) {
 }
 
 function callback_fights(data, idx) {
+    'use strict';
     PlayerList[idx].fight = data;
 
     for (let j in PlayerList[idx].fight.friendlies) {
