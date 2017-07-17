@@ -10,6 +10,7 @@
 const attributes = ['critSpell', 'hasteSpell', 'mastery', 'versatilityDamageDone'];
 const columnNames = ['Crit', 'Haste', 'Mastery', 'Versatility'];
 const regex = /\/reports\/([\S\s]+?)#fight=([0-9]+)/;
+const HOST = 'https://' + window.location.hostname;
 
 var PlayerList = new Array();
 
@@ -30,7 +31,7 @@ function initialize() {
         player.name = $(this).find('.players-table-name .main-table-player').text();
 
         var href = $(this).find('.players-table-name .main-table-player').attr('href');
-        if(typeof(href)=="undefined"){
+        if (typeof(href) == 'undefined') {
         	return;
         }
         player.logID = href.match(regex)[1];
@@ -43,7 +44,7 @@ function initialize() {
 function loadFights(index) {
     $.ajax({
         type: 'GET',
-        url: 'https://www.warcraftlogs.com/reports/fights_and_participants/' + PlayerList[index].logID + '/0',
+        url: HOST + '/reports/fights_and_participants/' + PlayerList[index].logID + '/0',
         dataType: 'json',
         success: function(data) {
             console.log(index);
@@ -55,7 +56,7 @@ function loadFights(index) {
 function loadStats(rowID, logID, fightID, timestamp, sourceID) {
     $.ajax({
         type: 'GET',
-        url: 'https://www.warcraftlogs.com/reports/summary_events/' + logID + '/' + fightID + '/' + timestamp + '/' + (timestamp + 3000) + '/' + sourceID + '/0/Any/0/-1.0.-1/0',
+        url: HOST + '/reports/summary_events/' + logID + '/' + fightID + '/' + timestamp + '/' + (timestamp + 3000) + '/' + sourceID + '/0/Any/0/-1.0.-1/0',
         dataType: 'json',
         success: function(data) {
             callback_stats(data, rowID, logID, fightID, timestamp, sourceID);
