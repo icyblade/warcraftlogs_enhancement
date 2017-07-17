@@ -47,7 +47,6 @@ function loadFights(index) {
         url: HOST + '/reports/fights_and_participants/' + PlayerList[index].logID + '/0',
         dataType: 'json',
         success: function(data) {
-            console.log(index);
             callback_fights(data, index);
         }
     });
