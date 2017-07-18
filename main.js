@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Warcraft Logs Enhancement
 // @namespace    https://github.com/icyblade/warcraftlogs_enhancement
-// @version      0.2
+// @version      0.4
 // @description  Some Enhancement Scripts of Warcraft Logs
 // @author       swqsldz, kingofpowers, icyblade
 // @match        https://*.warcraftlogs.com/*
@@ -10,15 +10,20 @@
 //const attributes = ['critSpell', 'hasteSpell', 'mastery', 'versatilityDamageDone'];
 const columnNames = ['WeaponAttributes','Prestige','MainStat','Crit', 'Haste', 'Mastery', 'Versatility'];
 const regex = /\/reports\/([\S\s]+?)#fight=([0-9]+)/;
+
 const attrToPercent = {
-0:{'Crit':5,'perCrit':400,'Haste':0,'perHaste':375,'Mastery':8,'perMastery':712,'Versatility':0,'perVersatility':475},
-63:{'Crit':20,'Mastery':6,'perMastery':533.1}
+    0:{'Crit':5,'perCrit':400,'Haste':0,'perHaste':375,'Mastery':8,'perMastery':712,'Versatility':0,'perVersatility':475},
+    63:{'Crit':20,'Mastery':6,'perMastery':533.1}
 };
+
+const HOST = 'https://' + window.location.hostname;
+
 
 var PlayerList = new Array();
 
 function initialize() {
-	PlayerList = new Array();
+    'use strict';
+
     // initialize attribute columns
     for (let i = 0; i < columnNames.length; i++) {
         $('<th class="sorting ui-state-default">' + columnNames[i] + '</th>').insertBefore('th.zmdi.zmdi-flag.sorting.ui-state-default');
@@ -35,7 +40,7 @@ function initialize() {
         player.name = $(this).find('.players-table-name .main-table-player').text();
 
         var href = $(this).find('.players-table-name .main-table-player').attr('href');
-        if(typeof(href)=="undefined"){
+        if (typeof(href) == 'undefined') {
         	return;
         }
         player.logID = href.match(regex)[1];
@@ -171,10 +176,9 @@ function updateRowSummary(index){
 function loadFights(index) {
     $.ajax({
         type: 'GET',
-        url: 'https://www.warcraftlogs.com/reports/fights_and_participants/' + PlayerList[index].logID + '/0',
+        url: HOST + '/reports/fights_and_participants/' + PlayerList[index].logID + '/0',
         dataType: 'json',
         success: function(data) {
-            //console.log(index);
             callback_fights(data, index);
         }
     });
@@ -183,7 +187,7 @@ function loadFights(index) {
 function loadStats(rowID, logID, fightID, timestamp, sourceID) {
     $.ajax({
         type: 'GET',
-        url: 'https://www.warcraftlogs.com/reports/summary_events/' + logID + '/' + fightID + '/' + timestamp + '/' + (timestamp + 3000) + '/' + sourceID + '/0/Any/0/-1.0.-1/0',
+        url: HOST + '/reports/summary_events/' + logID + '/' + fightID + '/' + timestamp + '/' + (timestamp + 3000) + '/' + sourceID + '/0/Any/0/-1.0.-1/0',
         dataType: 'json',
         success: function(data) {
             callback_stats(data, rowID, logID, fightID, timestamp, sourceID);
@@ -204,6 +208,7 @@ function callback_stats(data, rowID, logID, fightID, timestamp, sourceID) {
 }
 
 function callback_fights(data, idx) {
+    'use strict';
     PlayerList[idx].fight = data;
 
     for (let j in PlayerList[idx].fight.friendlies) {
