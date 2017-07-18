@@ -108,7 +108,7 @@ function callback_playerSummary(data, index) {
     }
 
     // handle artifact
-    var regex_trait = /<a target="_new" href="\/\/www.wowhead.com\/spell=([0-9]+)\?rank=[0-9]"[^<]+<img src="([^"]+)"[^<]+<span[^<]+<\/span[^<]+<\/a[^<]+<td class="primary rank">([0-9]+)<\/td[^<]+<\/tr>/g;
+    var regex_trait = /<a target="_new" href="\/\/www.wowhead.com\/spell=([0-9]+)\?rank=[0-9]+"[^<]+<img src="([^"]+)"[^<]+<span[^<]+<\/span[^<]+<\/a[^<]+<td class="primary rank">([0-9]+)<\/td[^<]+<\/tr>/g;
 
     var relicnum = 0;
     while ((trait = regex_trait.exec(data)) != null) {
