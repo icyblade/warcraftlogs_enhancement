@@ -7,8 +7,8 @@
 // @match        https://*.warcraftlogs.com/*
 // @run-at       document-idle
 // ==/UserScript==
-const attributes = ['critSpell', 'hasteSpell', 'mastery', 'versatilityDamageDone'];
-const columnNames = ['Crit', 'Haste', 'Mastery', 'Versatility'];
+//const attributes = ['critSpell', 'hasteSpell', 'mastery', 'versatilityDamageDone'];
+const columnNames = ['WeaponAttributes','Prestige','MainStat','Crit', 'Haste', 'Mastery', 'Versatility'];
 const regex = /\/reports\/([\S\s]+?)#fight=([0-9]+)/;
 const attrToPercent = {
 0:{'Crit':5,'perCrit':400,'Haste':0,'perHaste':375,'Mastery':8,'perMastery':712,'Versatility':0,'perVersatility':475},
@@ -20,11 +20,11 @@ var PlayerList = new Array();
 function initialize() {
 	PlayerList = new Array();
     // initialize attribute columns
-    for (let i = 0; i < attributes.length; i++) {
+    for (let i = 0; i < columnNames.length; i++) {
         $('<th class="sorting ui-state-default">' + columnNames[i] + '</th>').insertBefore('th.zmdi.zmdi-flag.sorting.ui-state-default');
     }
-    for (let i = 0; i < attributes.length; i++) {
-        $('<td class="attr-' + attributes[i] + '"></td>').insertBefore('td.zmdi.zmdi-flag');
+    for (let i = 0; i < columnNames.length; i++) {
+        $('<td class="' + columnNames[i] + '"></td>').insertBefore('td.zmdi.zmdi-flag');
     }
 
     // extract fights from ranking page
@@ -46,7 +46,7 @@ function initialize() {
 }
 
 function loadPlayerSummary(index){
-	console.log('https://www.warcraftlogs.com/reports/summary/' + PlayerList[index].logID + '/' + PlayerList[index].fightID + '/' + PlayerList[index].timestamp + '/' + (PlayerList[index].timestamp + 3000) + '/' + PlayerList[index].sourceID + '/0/Any/0/-1.0.-1/0')
+	//console.log('https://www.warcraftlogs.com/reports/summary/' + PlayerList[index].logID + '/' + PlayerList[index].fightID + '/' + PlayerList[index].timestamp + '/' + (PlayerList[index].timestamp + 3000) + '/' + PlayerList[index].sourceID + '/0/Any/0/-1.0.-1/0')
     $.ajax({
         type: 'GET',
         url: 'https://www.warcraftlogs.com/reports/summary/' + PlayerList[index].logID + '/' + PlayerList[index].fightID + '/' + PlayerList[index].timestamp + '/' + (PlayerList[index].timestamp + 3000) + '/' + PlayerList[index].sourceID + '/0/Any/0/-1.0.-1/0',
@@ -97,28 +97,75 @@ function callback_playersummary(data,index){
 	while((trait=regex_trait.exec(data))!=null)
 	{
 		if(trait[3]>4 && trait[1]!=239042){ // spell 239042 Concordance of the Legionfall
-			while(trait[3]>4){
-				trait[3]--;
+			var t=trait[3];
+			var spid={'spellid':trait[1],'img':trait[2]};
+			if(typeof(summary['relic'])=='undefined'){
+				summary['relic']=new Array();
+			}
+			while(t>4){
+				t--;
 				relicnum++;
-				summary['relic'+relicnum]={'spellid':trait[1],'img':trait[2]};
+				summary['relic'].push(spid);
 			}
 		}
 		if(trait[1]==239042){
 			summary['legionfall_level']=trait[3];
 		}
 	}
-	var regex_item=/<td class="primary rank">([0-9]+)<\/td[^<]+<td nowrap class="num">(Trinket|Weapon)<td [^<]+<a target="_new" href="\/\/legion.wowhead.com\/item=([0-9]+)" rel="bonus=([0-9:]+);"/g;
+	var regex_item=/<td class="primary rank">([0-9]+)<\/td[^<]+<td nowrap class="num">(Trinket|Weapon)<td [^<]+<a target="_new" href="\/\/legion.wowhead.com\/item=([0-9]+)" rel="(?:[^"]+|)bonus=([0-9:]+);"/g;
 	var trinketnum=0;
 	while((item=regex_item.exec(data))!=null)
 	{
 		if(item[2]=='Trinket'){
 			trinketnum++;
-			summary['Trinket'+trinketnum]={ 'id':item[3],'level':item[1],'bonus':item[3] };
+			summary['Trinket'+trinketnum]={ 'id':item[3],'level':item[1],'bonus':item[4] };
 		}else{
 			summary['WeaponLevel']=item[1];
 		}
 	}
-	console.log(summary);
+	PlayerList[index].summary=summary;
+	updateRowSummary(index);
+	//console.log(summary);
+}
+
+function updateRowSummary(index){
+	//const columnNames = ['WeaponAttributes','Prestige','Crit', 'Haste', 'Mastery', 'Versatility'];
+	//<a target="_new" href="//www.wowhead.com/spell=236058"><img src="/img/icons/abilities/spell_fire_burningspeed.jpg" class="tiny-icon"></a>
+    try {
+    	relics='';
+    	if(typeof(PlayerList[index].summary['relic'])!='undefined'){
+    		$.each(PlayerList[index].summary['relic'],function(i,relic){
+    			relics+='<a target="_new" href="//www.wowhead.com/spell=' +  relic['spellid'] + '"><img src="' + relic['img'] + '" class="tiny-icon"></a>';
+    		});
+    	}
+        $('#' + PlayerList[index].rowID + ' .WeaponAttributes').html('<div style="align-items: center;justify-content: space-between;display: flex;">'+PlayerList[index].summary['WeaponLevel']+':'+relics+'</div>');
+        $('#' + PlayerList[index].rowID + ' .Prestige').html(PlayerList[index].summary['legionfall_level']);
+        $('#' + PlayerList[index].rowID + ' .MainStat').html(PlayerList[index].summary['MainStat']);
+        $('#' + PlayerList[index].rowID + ' .Crit').html(PlayerList[index].summary['Crit']);
+        $('#' + PlayerList[index].rowID + ' .Haste').html(PlayerList[index].summary['Haste']);
+        $('#' + PlayerList[index].rowID + ' .Mastery').html(PlayerList[index].summary['Mastery']);
+        $('#' + PlayerList[index].rowID + ' .Versatility').html(PlayerList[index].summary['Versatility']);
+        //Trinket
+        var regex_tditem = /wowhead.com\/item=([0-9]+)/;
+        for(let trinketid=1;trinketid<=2;trinketid++){
+	        if(typeof(PlayerList[index].summary['Trinket'+trinketid])!='undefined'){
+	        	//{ 'id':item[3],'level':item[1],'bonus':item[4] }
+	        	$('#' + PlayerList[index].rowID + '>.unique-gear>div>a[href$="item=' + PlayerList[index].summary['Trinket'+trinketid]['id'] + '"]').each(
+	        	//    position: relative;
+	        	//<span style="position: absolute;bottom: -6px;">100</span>
+	        		function(i,a){
+	        			$(a).html($(a).html()+'<span style="position: absolute;bottom: -6px;">' + PlayerList[index].summary['Trinket'+trinketid]['level'] + '</span>');
+	        			$(a).attr('href',a.href+'&bonus='+PlayerList[index].summary['Trinket'+trinketid]['bonus']);
+	        			$(a).css('position','relative');
+	        			console.log(a);
+	        		}
+	        	);
+	        }
+        }
+    } catch (e) {
+        console.error(e);
+        console.error(PlayerList[index]);
+    }
 }
 
 function loadFights(index) {
@@ -145,9 +192,9 @@ function loadStats(rowID, logID, fightID, timestamp, sourceID) {
 }
 
 function callback_stats(data, rowID, logID, fightID, timestamp, sourceID) {
-    for (var key in attributes) {
+    for (var key in columnNames) {
         try {
-            $('#' + rowID + ' .attr-' + attributes[key]).html(data.events[0][attributes[key]]);
+            $('#' + rowID + ' .attr-' + columnNames[key]).html(data.events[0][columnNames[key]]);
         } catch (e) {
             console.error(e);
             console.error(rowID);
