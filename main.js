@@ -172,7 +172,7 @@ function updateRowSummary(index) {
             if (typeof(PlayerList[index].summary['Trinket' + trinketid]) != 'undefined') {
                 $('#' + PlayerList[index].rowID + '>.unique-gear>div>a[href$="item=' + PlayerList[index].summary['Trinket' + trinketid]['id'] + '"]').each(
                     function(i, a) {
-                        $(a).html($(a).html() + '<span style="position: absolute;bottom: -6px;">' + PlayerList[index].summary['Trinket' + trinketid]['level'] + '</span>');
+                        $(a).html($(a).html() + '<span style="position: absolute; bottom: -6px; text-shadow: -2px 0 black, 0 2px black, 2px 0 black, 0 -2px black;">' + PlayerList[index].summary['Trinket' + trinketid]['level'] + '</span>');
                         $(a).attr('href', a.href + '&bonus=' + PlayerList[index].summary['Trinket' + trinketid]['bonus']);
                         $(a).css('position', 'relative');
                     }
