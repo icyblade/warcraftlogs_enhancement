@@ -67,7 +67,7 @@ function initialize() {
 function loadPlayerSummary(index) {
     $.ajax({
         type: 'GET',
-        url: 'https://www.warcraftlogs.com/reports/summary/' + PlayerList[index].logID + '/' + PlayerList[index].fightID + '/' + PlayerList[index].timestamp + '/' + (PlayerList[index].timestamp + 3000) + '/' + PlayerList[index].sourceID + '/0/Any/0/-1.0.-1/0',
+        url: HOST+'/reports/summary/' + PlayerList[index].logID + '/' + PlayerList[index].fightID + '/' + PlayerList[index].timestamp + '/' + (PlayerList[index].timestamp + 3000) + '/' + PlayerList[index].sourceID + '/0/Any/0/-1.0.-1/0',
         dataType: 'text',
         success: function(data) {
             callback_playerSummary(data, index);
