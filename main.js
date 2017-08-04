@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Warcraft Logs Enhancement
 // @namespace    https://github.com/icyblade/warcraftlogs_enhancement
-// @version      1.0
+// @version      1.0.1
 // @description  Some Enhancement Scripts of Warcraft Logs
 // @author       swqsldz, kingofpowers, icyblade
 // @match        https://*.warcraftlogs.com/*
@@ -242,10 +242,11 @@ function loadAttributes() {
 }
 
 function delayLoadAttributes() {
-    if ($('.ranking-table tr:eq(1)').length === 0) {
-        setTimeout(delayLoadAttributes, 1000);
-    } else {
+    if ($('.ranking-table tr:eq(1)').length !== 0 && $('.ranking-table tr:eq(1) >.MainStat').length === 0) {
         loadAttributes();
+        setTimeout(delayLoadAttributes, 10000);
+    } else {
+        setTimeout(delayLoadAttributes, 1000);
     }
 }
 
