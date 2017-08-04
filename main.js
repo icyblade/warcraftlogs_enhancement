@@ -11,6 +11,9 @@ const PRESTIGE_SPELL_ID = 239042; // Concordance of the Legionfall
 const columnNames = ['Artifact', 'Prestige', 'MainStat', 'Crit', 'Haste', 'Mastery', 'Versatility'];
 const attributes = ['Prestige', 'MainStat', 'Crit', 'Haste', 'Mastery', 'Versatility'];
 const regex = /\/reports\/([\S\s]+?)#fight=([0-9]+)/;
+var LoadListFight = new Array();
+var LoadListSummary = new Array();
+var LoadVersion = 0;
 
 const attrToPercent = {
     0: {
@@ -64,8 +67,11 @@ function initialize() {
     });
 }
 
-function loadPlayerSummary(index) {
-    $.ajax({
+function loadPlayerSummary(index,NowVersion) {
+    	if(NowVersion!=LoadVersion){
+		return;
+	}
+    LoadListSummary[index]=$.ajax({
         type: 'GET',
         url: HOST+'/reports/summary/' + PlayerList[index].logID + '/' + PlayerList[index].fightID + '/' + PlayerList[index].timestamp + '/' + (PlayerList[index].timestamp + 3000) + '/' + PlayerList[index].sourceID + '/0/Any/0/-1.0.-1/0',
         dataType: 'text',
@@ -185,13 +191,16 @@ function updateRowSummary(index) {
     }
 }
 
-function loadFights(index) {
-    $.ajax({
+function loadFights(index,NowVersion) {
+	if(NowVersion!=LoadVersion){
+		return;
+	}
+    LoadListFight[index]=$.ajax({
         type: 'GET',
         url: HOST + '/reports/fights_and_participants/' + PlayerList[index].logID + '/0',
         dataType: 'json',
         success: function(data) {
-            callback_fights(data, index);
+            callback_fights(data, index,NowVersion);
         }
     });
 }
@@ -208,7 +217,7 @@ function callback_stats(data, rowID, logID, fightID, timestamp, sourceID) {
     }
 }
 
-function callback_fights(data, idx) {
+function callback_fights(data, idx,NowVersion) {
     'use strict';
     PlayerList[idx].fight = data;
 
@@ -226,24 +235,36 @@ function callback_fights(data, idx) {
         }
     }
 
-    loadPlayerSummary(idx);
+    loadPlayerSummary(idx,NowVersion);
     idx++;
 
     if (idx >= PlayerList.length) {
         return;
     }
 
-    loadFights(idx);
+    loadFights(idx,NowVersion);
 }
 
-function loadAttributes() {
+function clearLoad(){
+	$.each(LoadListFight,function(i,_ajax){
+		_ajax.abort();
+	});
+	$.each(LoadListSummary,function(i,_ajax){
+		_ajax.abort();
+	});
+}
+
+function loadAttributes(NowVersion) {
     initialize();
-    loadFights(0);
+    loadFights(0,NowVersion);
 }
 
 function delayLoadAttributes() {
     if ($('.ranking-table tr:eq(1)').length !== 0 && $('.ranking-table tr:eq(1) >.MainStat').length === 0) {
-        loadAttributes();
+    	  LoadVersion++;
+    	  clearLoad();
+    	  PlayerList = new Array();
+        loadAttributes(LoadVersion);
         setTimeout(delayLoadAttributes, 10000);
     } else {
         setTimeout(delayLoadAttributes, 1000);
