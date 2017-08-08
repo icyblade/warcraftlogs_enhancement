@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Warcraft Logs Enhancement
 // @namespace    https://github.com/icyblade/warcraftlogs_enhancement
-// @version      1.0.1
+// @version      1.0.2
 // @description  Some Enhancement Scripts of Warcraft Logs
 // @author       swqsldz, kingofpowers, icyblade
 // @match        https://*.warcraftlogs.com/*
@@ -11,9 +11,9 @@ const PRESTIGE_SPELL_ID = 239042; // Concordance of the Legionfall
 const columnNames = ['Artifact', 'Prestige', 'MainStat', 'Crit', 'Haste', 'Mastery', 'Versatility'];
 const attributes = ['Prestige', 'MainStat', 'Crit', 'Haste', 'Mastery', 'Versatility'];
 const regex = /\/reports\/([\S\s]+?)#fight=([0-9]+)/;
-var LoadListFight = new Array();
-var LoadListSummary = new Array();
-var LoadVersion = 0;
+var loadListFight = new Array();
+var loadListSummary = new Array();
+var loadVersion = 0;
 
 const attrToPercent = {
     0: {
@@ -67,13 +67,13 @@ function initialize() {
     });
 }
 
-function loadPlayerSummary(index,NowVersion) {
-    	if(NowVersion!=LoadVersion){
-		return;
-	}
-    LoadListSummary[index]=$.ajax({
+function loadPlayerSummary(index, currentVersion) {
+    if (currentVersion != loadVersion) {
+        return;
+    }
+    loadListSummary[index] = $.ajax({
         type: 'GET',
-        url: HOST+'/reports/summary/' + PlayerList[index].logID + '/' + PlayerList[index].fightID + '/' + PlayerList[index].timestamp + '/' + (PlayerList[index].timestamp + 3000) + '/' + PlayerList[index].sourceID + '/0/Any/0/-1.0.-1/0',
+        url: HOST + '/reports/summary/' + PlayerList[index].logID + '/' + PlayerList[index].fightID + '/' + PlayerList[index].timestamp + '/' + (PlayerList[index].timestamp + 3000) + '/' + PlayerList[index].sourceID + '/0/Any/0/-1.0.-1/0',
         dataType: 'text',
         success: function(data) {
             callback_playerSummary(data, index);
@@ -191,16 +191,16 @@ function updateRowSummary(index) {
     }
 }
 
-function loadFights(index,NowVersion) {
-	if(NowVersion!=LoadVersion){
-		return;
-	}
-    LoadListFight[index]=$.ajax({
+function loadFights(index, currentVersion) {
+    if (currentVersion != loadVersion) {
+        return;
+    }
+    loadListFight[index] = $.ajax({
         type: 'GET',
         url: HOST + '/reports/fights_and_participants/' + PlayerList[index].logID + '/0',
         dataType: 'json',
         success: function(data) {
-            callback_fights(data, index,NowVersion);
+            callback_fights(data, index, currentVersion);
         }
     });
 }
@@ -217,7 +217,7 @@ function callback_stats(data, rowID, logID, fightID, timestamp, sourceID) {
     }
 }
 
-function callback_fights(data, idx,NowVersion) {
+function callback_fights(data, idx, currentVersion) {
     'use strict';
     PlayerList[idx].fight = data;
 
@@ -235,36 +235,36 @@ function callback_fights(data, idx,NowVersion) {
         }
     }
 
-    loadPlayerSummary(idx,NowVersion);
+    loadPlayerSummary(idx, currentVersion);
     idx++;
 
     if (idx >= PlayerList.length) {
         return;
     }
 
-    loadFights(idx,NowVersion);
+    loadFights(idx, currentVersion);
 }
 
-function clearLoad(){
-	$.each(LoadListFight,function(i,_ajax){
-		_ajax.abort();
-	});
-	$.each(LoadListSummary,function(i,_ajax){
-		_ajax.abort();
-	});
+function clearLoad() {
+    $.each(loadListFight, function(i, _ajax) {
+        _ajax.abort();
+    });
+    $.each(loadListSummary, function(i, _ajax) {
+        _ajax.abort();
+    });
 }
 
-function loadAttributes(NowVersion) {
+function loadAttributes(currentVersion) {
     initialize();
-    loadFights(0,NowVersion);
+    loadFights(0, currentVersion);
 }
 
 function delayLoadAttributes() {
     if ($('.ranking-table tr:eq(1)').length !== 0 && $('.ranking-table tr:eq(1) >.MainStat').length === 0) {
-    	  LoadVersion++;
-    	  clearLoad();
-    	  PlayerList = new Array();
-        loadAttributes(LoadVersion);
+        loadVersion++;
+        clearLoad();
+        PlayerList = new Array();
+        loadAttributes(loadVersion);
         setTimeout(delayLoadAttributes, 10000);
     } else {
         setTimeout(delayLoadAttributes, 1000);
