@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Warcraft Logs Enhancement
 // @namespace    https://github.com/icyblade/warcraftlogs_enhancement
-// @version      1.0.2
+// @version      1.0.3
 // @description  Some Enhancement Scripts of Warcraft Logs
 // @author       swqsldz, kingofpowers, icyblade
 // @match        https://*.warcraftlogs.com/*
@@ -167,7 +167,7 @@ function updateRowSummary(index) {
                 relics += '<a target="_new" href="//www.wowhead.com/spell=' + relic['spellid'] + '"><img src="' + relic['img'] + '" class="tiny-icon"></a>';
             });
         }
-        $('#' + PlayerList[index].rowID + ' .Artifact').html('<div style="align-items: center;justify-content: space-between;display: flex;">' + PlayerList[index].summary['WeaponLevel'] + ':' + relics + '</div>');
+        $('#' + PlayerList[index].rowID + ' .Artifact').html('<div style="align-items: center; display: flex;">' + PlayerList[index].summary['WeaponLevel'] + ':' + relics + '</div>');
         for (let i = 0; i < attributes.length; i++) {
             $('#' + PlayerList[index].rowID + ' .' + attributes[i]).html(PlayerList[index].summary[attributes[i]]);
         }
@@ -185,6 +185,7 @@ function updateRowSummary(index) {
                 );
             }
         }
+        $('td.Artifact').css('width', '1%');
     } catch (e) {
         console.error(e);
         console.error(PlayerList[index]);
@@ -271,4 +272,5 @@ function delayLoadAttributes() {
     }
 }
 
+$('.responsive #content').attr('style', 'max-width: 10000px !important;');
 delayLoadAttributes();
