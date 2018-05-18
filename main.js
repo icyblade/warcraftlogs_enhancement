@@ -1,9 +1,10 @@
 // ==UserScript==
 // @name         Warcraft Logs Enhancement
 // @namespace    https://github.com/icyblade/warcraftlogs_enhancement
-// @version      1.0.3
+// @version      1.0.4
 // @description  Some Enhancement Scripts of Warcraft Logs
 // @author       swqsldz, kingofpowers, icyblade
+// @match        http://*.warcraftlogs.com/*
 // @match        https://*.warcraftlogs.com/*
 // @run-at       document-idle
 // ==/UserScript==

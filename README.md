@@ -8,12 +8,10 @@ Some Enhancement Scripts of Warcraft Logs
 
 ## Installation
 
+ https://greasyfork.org/en/scripts/31439-warcraft-logs-enhancement
+
  Please refer to https://tampermonkey.net/
  
 ## Screenshots
 
  ![example](https://github.com/icyblade/warcraftlogs_enhancement/blob/master/example.png "Example")
-
-## Known Bugs
-
- - Attributes will not be loaded unless page refreshs.
