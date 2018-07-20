@@ -1,38 +1,20 @@
 // ==UserScript==
 // @name         Warcraft Logs Enhancement
 // @namespace    https://github.com/icyblade/warcraftlogs_enhancement
-// @version      1.0.4
+// @version      1.1.0
 // @description  Some Enhancement Scripts of Warcraft Logs
 // @author       swqsldz, kingofpowers, icyblade
 // @match        http://*.warcraftlogs.com/*
 // @match        https://*.warcraftlogs.com/*
 // @run-at       document-idle
 // ==/UserScript==
-const PRESTIGE_SPELL_ID = 239042; // Concordance of the Legionfall
-const columnNames = ['Artifact', 'Prestige', 'MainStat', 'Crit', 'Haste', 'Mastery', 'Versatility'];
-const attributes = ['Prestige', 'MainStat', 'Crit', 'Haste', 'Mastery', 'Versatility'];
+const columnNames = ['MainStat', 'Crit', 'Haste', 'Mastery', 'Versatility'];
+const attributes = ['MainStat', 'Crit', 'Haste', 'Mastery', 'Versatility'];
 const regex = /\/reports\/([\S\s]+?)#fight=([0-9]+)/;
 var loadListFight = new Array();
 var loadListSummary = new Array();
 var loadVersion = 0;
 
-const attrToPercent = {
-    0: {
-        'Crit': 5,
-        'perCrit': 400,
-        'Haste': 0,
-        'perHaste': 375,
-        'Mastery': 8,
-        'perMastery': 712,
-        'Versatility': 0,
-        'perVersatility': 475
-    },
-    63: {
-        'Crit': 20,
-        'Mastery': 6,
-        'perMastery': 533.1
-    }
-};
 
 const HOST = 'https://' + window.location.hostname;
 
@@ -86,7 +68,7 @@ function callback_playerSummary(data, index) {
     var summary = new Array();
 
     // handle main and enhancement attributes
-    var regex_attr = /<span class="composition-entry">([a-zA-Z]+): <span class=estimate><span class=estimate>([0-9\,]+)<\/span>/g;
+    var regex_attr = /<span class="composition-entry">([a-zA-Z]+): <span class=estimate>([0-9\,]+)<\/span>/g;
 
     while ((stat = regex_attr.exec(data)) != null) {
         switch (stat[1]) {
@@ -114,31 +96,6 @@ function callback_playerSummary(data, index) {
         }
     }
 
-    // handle artifact
-    var regex_trait = /<a target="_new" href="\/\/www.wowhead.com\/spell=([0-9]+)\?rank=[0-9]+"[^<]+<img src="([^"]+)"[^<]+<span[^<]+<\/span[^<]+<\/a[^<]+<td class="primary rank">([0-9]+)<\/td[^<]+<\/tr>/g;
-
-    var relicnum = 0;
-    while ((trait = regex_trait.exec(data)) != null) {
-        if (trait[3] > 4 && trait[1] != PRESTIGE_SPELL_ID) {
-            var t = trait[3];
-            var spid = {
-                'spellid': trait[1],
-                'img': trait[2]
-            };
-            if (typeof(summary['relic']) == 'undefined') {
-                summary['relic'] = new Array();
-            }
-            while (t > 4) {
-                t--;
-                relicnum++;
-                summary['relic'].push(spid);
-            }
-        }
-        if (trait[1] == PRESTIGE_SPELL_ID) {
-            summary['Prestige'] = trait[3];
-        }
-    }
-
     // handle items
     var regex_item = /<td class="primary rank">([0-9]+)<\/td[^<]+<td nowrap class="num">(Trinket|Weapon)<td [^<]+<a target="_new" href="\/\/legion.wowhead.com\/item=([0-9]+)" rel="(?:(?:[^"]+|)bonus=([0-9:]+);|)"/g;
 
@@ -160,7 +117,6 @@ function callback_playerSummary(data, index) {
 }
 
 function updateRowSummary(index) {
-
     try {
         relics = '';
         if (typeof(PlayerList[index].summary['relic']) != 'undefined') {
@@ -199,7 +155,7 @@ function loadFights(index, currentVersion) {
     }
     loadListFight[index] = $.ajax({
         type: 'GET',
-        url: HOST + '/reports/fights_and_participants/' + PlayerList[index].logID + '/0',
+        url: HOST + '/reports/fights-and-participants/' + PlayerList[index].logID + '/0',
         dataType: 'json',
         success: function(data) {
             callback_fights(data, index, currentVersion);
