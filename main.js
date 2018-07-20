@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Warcraft Logs Enhancement
 // @namespace    https://github.com/icyblade/warcraftlogs_enhancement
-// @version      1.1.0
+// @version      1.1.1
 // @description  Some Enhancement Scripts of Warcraft Logs
 // @author       swqsldz, kingofpowers, icyblade
 // @match        http://*.warcraftlogs.com/*
@@ -97,20 +97,16 @@ function callback_playerSummary(data, index) {
     }
 
     // handle items
-    var regex_item = /<td class="primary rank">([0-9]+)<\/td[^<]+<td nowrap class="num">(Trinket|Weapon)<td [^<]+<a target="_new" href="\/\/legion.wowhead.com\/item=([0-9]+)" rel="(?:(?:[^"]+|)bonus=([0-9:]+);|)"/g;
+    var regex_item = /<td class="primary rank">([0-9]+)<\/td[^<]+<td nowrap class="num">Trinket\s*<td [^<]+<a target="_blank" href="\/\/www.wowhead.com\/item=([0-9]+)" rel="(?:(?:[^"]+|)bonus=([0-9:]+);|)"/g;
 
     var trinketnum = 0;
     while ((item = regex_item.exec(data)) != null) {
-        if (item[2] == 'Trinket') {
-            trinketnum++;
-            summary['Trinket' + trinketnum] = {
-                'id': item[3],
-                'level': item[1],
-                'bonus': item[4] || ""
-            };
-        } else {
-            summary['WeaponLevel'] = item[1];
-        }
+        trinketnum++;
+        summary['Trinket' + trinketnum] = {
+            'id': item[2],
+            'level': item[1],
+            'bonus': item[3] || ""
+        };
     }
     PlayerList[index].summary = summary;
     updateRowSummary(index);
