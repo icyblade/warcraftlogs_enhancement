@@ -227,7 +227,9 @@ function delayLoadAttributes() {
 
 // Remove right banner
 var rightBanner = document.getElementById('right-vertical-banner');
-rightBanner.parentElement.removeChild(rightBanner);
+if (rightBanner){
+	rightBanner.parentElement.removeChild(rightBanner);
+}
 document.getElementById('table-container').style.marginRight = 0;
 
 $('.responsive #content').attr('style', 'max-width: 10000px !important;');
